@@ -64,24 +64,24 @@ export default class App extends Component {
 
   render() {
     const common = {
-      width: 400,
-      height: 400,
+      width: window.innerWidth,
+      height: 600,
       style: {float: 'left'},
       mapboxApiAccessToken: getAccessToken()
     };
     return (
       <div>
-        <TiltExample
+        {/*<TiltExample
           width={ this.state.width - 30 }
           height={ 400 }
           mapboxApiAccessToken={ getAccessToken() }/>
         <RouteExample { ...common }/>
         <ScatterplotExample { ...common }/>
         <ChoroplethExample { ...common }/>
-        <CustomExample { ...common }/>
+        <CustomExample { ...common }/>*/}
         <GeodataCreator { ...common }/>
-        <NotInteractiveExample { ...common }/>
-        <StyleDiffingExample { ...common }/>
+        {/*<NotInteractiveExample { ...common }/>
+        <StyleDiffingExample { ...common }/>*/}
       </div>
     );
   }
