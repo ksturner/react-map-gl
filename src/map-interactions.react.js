@@ -111,6 +111,12 @@ export default class MapInteractions extends Component {
     }, new Point(0, 0));
   }
 
+  _getFingerDist(event) {
+    return Math.sqrt(
+      (event.touches[0].clientX - event.touches[1].clientX) * (event.touches[0].clientX - event.touches[1].clientX) +
+      (event.touches[0].clientY - event.touches[1].clientY) * (event.touches[0].clientY - event.touches[1].clientY));
+  }
+
   @autobind
   _onMouseDown(event) {
     const pos = this._getMousePos(event);
@@ -127,22 +133,16 @@ export default class MapInteractions extends Component {
   @autobind
   _onTouchStart(event) {
     const pos = this._getTouchPos(event);
-    let scaling = false;
-    let fingerDist = 0;
-    if(event.touches.length == 2) {
-      fingerDist =
-      Math.sqrt(
-      (event.touches[0].clientX-event.touches[1].clientX) * (event.touches[0].clientX-event.touches[1].clientX) +
-      (event.touches[0].clientY-event.touches[1].clientY) * (event.touches[0].clientY-event.touches[1].clientY));
-      scaling = true;
-    }
-    this.setState({
+    const newState = {
       startPos: pos,
       pos: pos,
-      scaling: scaling,
-      fingerDist: fingerDist,
       metaKey: Boolean(event.metaKey)
-    });
+    };
+    if(event.touches.length === 2) {
+      newState.fingerDist = this._getFingerDist(event);
+      newState.scaling = true;
+    }
+    this.setState(newState);
     this.props.onTouchStart({ pos: pos });
     document.addEventListener('touchmove', this._onTouchDrag, false);
     document.addEventListener('touchend', this._onTouchEnd, false);
@@ -163,26 +163,14 @@ export default class MapInteractions extends Component {
   @autobind
   _onTouchDrag(event) {
     const pos = this._getTouchPos(event);
-    let obj = { pos: pos };
-    const prevFingerDist = this.state.fingerDist;
-    let currentFingerDist = 0;
+    const newState = { pos: pos };
     if (this.state.scaling) {
-      currentFingerDist = Math.sqrt(
-      (event.touches[0].clientX - event.touches[1].clientX) * (event.touches[0].clientX - event.touches[1].clientX) +
-      (event.touches[0].clientY - event.touches[1].clientY) * (event.touches[0].clientY - event.touches[1].clientY));
-      if (currentFingerDist > prevFingerDist) {
-        this._zoom(this.state.pinchZoom + 10, pos);
-      } else {
-        this._zoom(this.state.pinchZoom - 10, pos);
-      }
-      if (currentFingerDist !== prevFingerDist) {
-        obj = {
-          pos: pos,
-          fingerDist: currentFingerDist
-        };
-      }
+      const currentFingerDist = this._getFingerDist(event);
+      const zoomChange = currentFingerDist > this.state.fingerDist ? 10 : -10;
+      this._zoom(this.state.pinchZoom + zoomChange, pos);
+      newState.fingerDist = currentFingerDist;
     }
-    this.setState(obj);
+    this.setState(newState);
     if (this.state.metaKey) {
       const startPos = this.state.startPos;
 
@@ -207,14 +195,11 @@ export default class MapInteractions extends Component {
     document.removeEventListener('touchmove', this._onTouchDrag, false);
     document.removeEventListener('touchend', this._onTouchEnd, false);
     const pos = this._getTouchPos(event);
-    let obj = { pos: pos }
+    const newState = { pos: pos }
     if (this.state.scaling) {
-      obj = {
-        pos: pos,
-        scaling: false
-      };
+      newState.scaling = false;
     }
-    this.setState(obj);
+    this.setState(newState);
     this.props.onTouchEnd({ pos: pos });
   }
 
