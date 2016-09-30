@@ -171,9 +171,9 @@ export default class MapInteractions extends Component {
       (event.touches[0].clientX - event.touches[1].clientX) * (event.touches[0].clientX - event.touches[1].clientX) +
       (event.touches[0].clientY - event.touches[1].clientY) * (event.touches[0].clientY - event.touches[1].clientY));
       if (currentFingerDist > prevFingerDist) {
-        this._zoom(this.state.pinchZoom + 20, pos);
+        this._zoom(this.state.pinchZoom + 10, pos);
       } else {
-        this._zoom(this.state.pinchZoom - 20, pos);
+        this._zoom(this.state.pinchZoom - 10, pos);
       }
       if (currentFingerDist !== prevFingerDist) {
         obj = {
